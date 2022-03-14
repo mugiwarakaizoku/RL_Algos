@@ -45,13 +45,10 @@ class REINFORCE_Network(keras.Model):
         self.pi = Dense(total_actions,activation='softmax')
     def call(self,state):
         state_tensor = tf.convert_to_tensor([state])
-        #print('state_tensor:{} and len_state_tensor:{}'.format(state_tensor,len(state_tensor)))
         value = self.fc1(state_tensor)
         value = self.fc2(value)
         policy_fn = self.pi(value)
         policy_fn = policy_fn[0]
-        #print('state:{} and state_length:{}'.format(state,len(state)))
-        #print('policy_fn:{} and length_of_policy_fn:{}'.format(policy_fn,len(policy_fn)))
         return policy_fn
 
 class REINFORCE_Agent():
@@ -61,12 +58,10 @@ class REINFORCE_Agent():
         self.data =[]
 
     def chose_action(self,state):
-        #print('state at chose_action: {}'.format(state))
         action_probs = self.reinforce_network.call(state)
         action_prob_dist = tfp.distributions.Categorical(probs = action_probs)
         action = action_prob_dist.sample()
         action = action.numpy()
-        #print(action)
         return action
 
     def train(self,states,actions,rewards):
