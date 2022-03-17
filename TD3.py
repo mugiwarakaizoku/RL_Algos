@@ -178,8 +178,8 @@ for n_ep in range(TOTAL_EPISODES):
         curr_state = next_state
     score_list.append(score)
     sample_batch = memory.sample()
-    loss = agent.train(sample_batch,n_ep)
-    print('num_eps: {} loss: {} score: {}'.format(n_ep,loss,score/20))
+    agent.train(sample_batch,n_ep)
+    print('num_eps: {} score: {}'.format(n_ep,score))
     score=0
 env.close()
 

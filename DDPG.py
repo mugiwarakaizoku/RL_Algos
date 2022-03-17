@@ -33,7 +33,6 @@ BATCH_SIZE=32
 GAMMA=0.98
 LEARNING_RATE_ACTOR=0.001
 LEARNING_RATE_CRITIC = 0.002
-UPDATE_TARGET_WEIGHTS_AFTER=30
 REPLAY_MEMORY_SIZE=50000
 TOTAL_EPISODES =5000
 RHO = 0.005
@@ -96,8 +95,6 @@ class Actor_Network(keras.Model):
 class DDPG_Agent():
     def __init__(self):
         self.memory = Replay_Memory()
-        self.max_action=env.action_space.high[0]
-        self.min_action = env.action_space.low[0]
         self.actor = Actor_Network()
         self.critic = Critic_Network()
         self.target_actor = Actor_Network()
@@ -161,8 +158,8 @@ for n_ep in range(TOTAL_EPISODES):
         curr_state = next_state
     score_list.append(score)
     sample_batch = memory.sample()
-    loss = agent.train(sample_batch)
-    print('num_eps: {} loss: {} score: {}'.format(n_ep,loss,score/UPDATE_TARGET_WEIGHTS_AFTER))
+    agent.train(sample_batch)
+    print('num_eps: {} score: {}'.format(n_ep,score))
     score=0
 env.close()
 
