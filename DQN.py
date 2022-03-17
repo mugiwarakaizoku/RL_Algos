@@ -1,38 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+
 
 
 import gym
 import matplotlib.pyplot as plt 
 import numpy as np
 import tensorflow as tf
-
-
-# In[2]:
-
-
 from collections import deque
 import random
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense
 
-
-# In[3]:
-
-
-tf.version
-
-
-# In[4]:
-
-
 env = gym.make('CartPole-v1')
-
-
-# In[35]:
-
 
 BATCH_SIZE=32
 GAMMA=0.98
@@ -41,15 +22,8 @@ UPDATE_TARGET_WEIGHTS_AFTER=30
 REPLAY_MEMORY_SIZE=50000
 TOTAL_EPISODES =5000 
 
-
-# In[6]:
-
-
 total_actions = env.action_space.n
 input_size = len(env.observation_space.sample())
-
-
-# In[7]:
 
 
 class Replay_Memory():
@@ -75,9 +49,6 @@ class Replay_Memory():
         return len(self.buffer)
 
 
-# In[8]:
-
-
 def make_NN_network(input_size,total_actions):
     model = Sequential()
     model.add(Dense(64,input_dim=input_size,activation='relu'))
@@ -85,9 +56,6 @@ def make_NN_network(input_size,total_actions):
     model.add(Dense(total_actions,activation='linear'))
     model.compile(optimizer=tf.optimizers.Adam(learning_rate=LEARNING_RATE), loss='mse')
     return model
-
-
-# In[9]:
 
 
 class DQN_Agent():
@@ -122,19 +90,6 @@ class DQN_Agent():
          self.target_net.set_weights(self.q_net.get_weights ())
 
 
-# In[79]:
-
-
-A = [3, 4, 6, 7]
-B = [1, 3, 6, 3]
-C = [False]*4
-[a+b*(1-c) for a,b,c in zip(A,B,C)]
-
-
-# ### Model Training
-
-# In[36]:
-
 
 agent = DQN_Agent()
 memory = Replay_Memory()
@@ -158,9 +113,6 @@ for n_ep in range(TOTAL_EPISODES):
         print('num_eps: {} loss: {} score: {}'.format(n_ep,loss,score/UPDATE_TARGET_WEIGHTS_AFTER))
         score=0
 env.close()
-
-
-# In[37]:
 
 
 plt.plot(score_list)
