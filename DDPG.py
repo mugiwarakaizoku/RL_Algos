@@ -162,9 +162,8 @@ for n_ep in range(TOTAL_EPISODES):
     score_list.append(score)
     sample_batch = memory.sample()
     loss = agent.train(sample_batch)
-     agent.update_network_weights()
-     print('num_eps: {} loss: {} score: {}'.format(n_ep,loss,score/UPDATE_TARGET_WEIGHTS_AFTER))
-     score=0
+    print('num_eps: {} loss: {} score: {}'.format(n_ep,loss,score/UPDATE_TARGET_WEIGHTS_AFTER))
+    score=0
 env.close()
 
 plt.plot(score_list)
