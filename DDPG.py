@@ -107,39 +107,19 @@ class DDPG_Agent():
         self.critic.compile(optimizer = Adam(learning_rate=LEARNING_RATE_CRITIC))
         self.target_critic.compile(optimizer = Adam(learning_rate=LEARNING_RATE_CRITIC))
     
-#     def chose_action(self,state,eval_=False):
     def chose_action(self,state):
         state_tensor = tf.convert_to_tensor(state[None,:])
-        #print('state: {} and {}'.format(tf.shape(state),state))
-        #print('state_tensor: {} and {}'.format(tf.shape(state_tensor),state_tensor))
         action = self.actor(state_tensor)
-        #print('action before noise: {}'.format(action))
-#         if not eval_:
         action+=tf.random.normal(shape=[total_actions],mean=0,stddev =NOISE)
-        #print('action after noise: {}'.format(action))
-        # action = tf.clip_by_value(action,self.min_action,self.max_action)
-        # print('action after clipping: {}'.format(action))
         return action[0]
         
     def train(self,mini_batch):
         state_batch, action_batch, reward_batch, next_state_batch,done_batch = mini_batch
-        # print('length {} and  next_state_batch: {}'.format(len(next_state_batch),next_state_batch))
         with tf.GradientTape() as tape:
             pi_target = self.target_actor.call(next_state_batch)
-            # print('length {} and  pi_target: {}'.format(len(pi_target),pi_target))
-            #print('q_target_without_squeeze: {}'.format(self.target_critic.call(next_state_batch,pi_target)))
-            # print('state_action_concat: {}'.format())
             q_target = tf.squeeze(self.target_critic.call(next_state_batch,pi_target),1)
             q = tf.squeeze(self.critic.call(state_batch,action_batch),1)
-            # print('q_target len: {} and value: {}'.format(len(q_target),q_target))
-            # print('q len: {} and value: {}'.format(len(q),q))
-            #print('reward_batch len: {}'.format(len(reward_batch),q_target))
-            #print('done_list len: {} and value: {}'.format(len(done_batch),done_batch))
-            # target=0
-            # for i in range(len(state_batch)):
             target = [r+GAMMA*q_tar*(1-terminal_) for r,q_tar,terminal_ in zip(reward_batch,q_target,done_batch)]
-            # target = reward_batch[i] + GAMMA*q_target[i]*(1-done_batch[i])
-            # critic_loss = (target-tf.reduce_sum(q).numpy())**2
             critic_loss = (target-q)**2
         critic_network_gradient = tape.gradient(critic_loss,self.critic.trainable_variables)
         self.critic.optimizer.apply_gradients(zip(critic_network_gradient,self.critic.trainable_variables))
@@ -182,10 +162,8 @@ for n_ep in range(TOTAL_EPISODES):
     score_list.append(score)
     sample_batch = memory.sample()
     loss = agent.train(sample_batch)
-    if n_ep%UPDATE_TARGET_WEIGHTS_AFTER == 0:
-        agent.update_network_weights()
-        print('num_eps: {} loss: {} score: {}'.format(n_ep,loss,score/UPDATE_TARGET_WEIGHTS_AFTER))
-        score=0
+    print('num_eps: {} loss: {} score: {}'.format(n_ep,loss,score/UPDATE_TARGET_WEIGHTS_AFTER))
+    score=0
 env.close()
 
 plt.plot(score_list)
